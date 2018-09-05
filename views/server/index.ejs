@@ -45,7 +45,15 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="http://tool.keleyi.com/ip/visitoriphost/"></script>
+<!-- <script type="text/javascript" src="http://tool.keleyi.com/ip/visitoriphost/"></script> -->
+<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<script>
+    console.log('server IP: ')
+    console.log(returnCitySN)
+    // var returnCitySN = {"cip": "113.67.16.203", "cid": "440100", "cname": "广东省广州市"};
+    var keleyivisitorip = document.getElementById ('keleyivisitorip');
+    keleyivisitorip.innerHTML = returnCitySN.cip;
+</script>
 <script type="text/javascript" src="http://cdn.staticfile.org/plupload/2.1.9/moxie.min.js"></script>
 <script type="text/javascript" src="http://cdn.staticfile.org/plupload/2.1.9/plupload.min.js"></script>
 <script type="text/javascript" src="http://cdn.staticfile.org/qiniu-js-sdk/1.0.14-beta/qiniu.min.js"></script>

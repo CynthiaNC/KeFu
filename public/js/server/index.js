@@ -301,6 +301,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
         console.log('连接成功...');
         uuid = 'chat-kefu-admin';
         var ip = $("#keleyivisitorip").html();
+        console.log('server ip: '+ip)
         var msg = {
             "uid" : uuid,
             "ip" : ip

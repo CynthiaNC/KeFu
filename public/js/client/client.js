@@ -196,6 +196,7 @@ $(function(){
         console.log('连接成功...'+uuid);
 
         var ip = $("#keleyivisitorip").html();
+        console.log('client ip: '+ip)
         var msg = {
             "uid" : uuid,
             "ip" : ip
