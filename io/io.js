@@ -40,7 +40,8 @@ function ioServer(io) {
         //用户与Socket进行绑定
         socket.on('login', function (msg) {
             var uid = msg.uid;
-            console.log(uid+'登录成功');
+            var kefuId = msg.kefuId;
+            console.log(uid+'登录成功, 连接客服'+kefuId);
 
             //通知用户上线
             if(uid != AppConfig.KEFUUUID){
@@ -68,6 +69,7 @@ function ioServer(io) {
                                 }
                                 var info = {
                                     "uid":uid,
+                                    "kefuId":kefuId,
                                     "name":location + ' 客户',
                                     "type":'online'
                                 };
@@ -84,7 +86,7 @@ function ioServer(io) {
 
                                     if(__uuids.indexOf(uid) == -1){
                                         __uuids.push(uid);
-                                        var d_user = {"uid":uid,"name":location + ' 客户'};
+                                        var d_user = {"uid":uid, "kefuId": kefuId,"name":location + ' 客户'};
                                         uuids.push(d_user);
                                         uuids = JSON.stringify(uuids);
                                         redis.set('user-uuids',uuids,null,function (err,ret) {
@@ -103,6 +105,8 @@ function ioServer(io) {
                 });
             }
 
+            // 要怎么进行连接呢？
+
             redis.set(uid,socket.id,null,function (err,ret) {
                 if(err){
                     console.error(err);
@@ -119,11 +123,10 @@ function ioServer(io) {
 
         //断开事件
         socket.on('disconnect', function() {
-            console.log("与服务其断开");
-
             _self.updateOnlieCount(false);
 
             redis.get(socket.id,function (err,val) {
+                console.log(val + "与服务器断开");
                 if(err){
                     console.error(err);
                 }
@@ -131,13 +134,14 @@ function ioServer(io) {
                     if(err){
                         console.error(err);
                     }
-
                 });
+
                 redis.del(val,function (err,ret) {
                     if(err){
                         console.error(err);
                     }
                 });
+
                 //通知用户下线
                 if(val != AppConfig.KEFUUUID){
                     redis.get(AppConfig.KEFUUUID,function (err,sid) {
@@ -193,7 +197,7 @@ function ioServer(io) {
 
         //监听客户端发送的信息,实现消息转发到各个其他客户端
         socket.on('message',function(msg){
-            msgModel.add(msg.from_uid,msg.uid,msg.content,msg.chat_type,msg.image,function (err) {
+            msgModel.add(msg.from_uid,msg.uid,msg.kefuId,msg.content,msg.chat_type,msg.image,function (err) {
                if(err){
                    console.error(err);
                }

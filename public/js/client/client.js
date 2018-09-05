@@ -3,7 +3,7 @@ $(function(){
     var socket = io.connect('http://'+document.domain+':9010',{
         "transports":['websocket', 'polling']
     });
-    var uuid = '';
+    var uuid = '', kefuId = '';
 
     function insert_client_html(msg){
         var time = dateFormat();
@@ -76,8 +76,8 @@ $(function(){
     }
 
     //获取最新的五条数据
-    function get_message(uid) {
-        $.get('/message?uid='+uid,function (data) {
+    function get_message(uid, kefuId) {
+        $.get(`/message?uid=${uid}&kefuId=${kefuId}`,function (data) {
             if(data.code == 200){
                 data.data.reverse().forEach(function (msg) {
                     if(msg.from_uid == uid){
@@ -188,21 +188,59 @@ $(function(){
         $(".emoji-list").toggle();
     });
 
+    /**
+     * 获取 url 中 query 参数的值
+     * @param {String} name 参数的名字
+     * @param {String} search url 中的 search，或指定的 类似 ?val=1&id=11 的字符串（已扩充了正则表达式的范围，可以直接传整串url也可以）
+     */
+    function getQueryString (name, search = window.location.href) {
+        let reg = new RegExp('(^|&|\\?)' + name + '=([^&]*)(&|$)');
+
+        let r = search.substr(1).match(reg);
+
+        if (r !== null) {
+            return unescape(r[2]);
+        } else {
+            return null;
+        }
+    };
+
+
     //连接服务器
     socket.on('connect', function () {
-        //uuid = 'chat'+ guid();
-        var fp1 = new Fingerprint();
-        uuid = fp1.get();
-        console.log('连接成功...'+uuid);
 
-        var ip = $("#keleyivisitorip").html();
-        console.log('client ip: '+ip)
-        var msg = {
-            "uid" : uuid,
-            "ip" : ip
-        };
-        socket.emit('login', msg);
-        get_message(uuid);
+        /**
+         * 1. 用 openId, kefuId 进行登录
+         * 2. 如果没有 openId, 用游客 id
+         * 3. 如果没有kefuId, 则不允许连接
+         */
+
+        uuid = getQueryString('openId') || '';
+        kefuId = getQueryString('kefuId');
+
+        if (!uuid) {
+            var fp1 = new Fingerprint();
+            uuid = 'tourist_' + fp1.get();
+            console.log('游客：' + uuid);
+        }
+
+        if (kefuId) {
+            console.log('连接成功...'+uuid);
+    
+            var ip = $("#keleyivisitorip").html();
+            console.log('client ip: '+ip)
+    
+            var msg = {
+                "uid" : uuid,
+                "ip" : ip,
+                "kefuId": kefuId,
+            };
+            socket.emit('login', msg);
+            get_message(uuid, kefuId);
+        } else {
+            console.log('缺少kefuId');
+            // TODO: 主动关闭socket
+        }
     });
 
     // /* 后端推送来消息时

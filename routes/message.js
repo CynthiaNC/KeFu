@@ -6,12 +6,13 @@ router.get('/', function(req, res, next) {
     var page = req.query.page || 1;
     var size = req.query.size || 10;
     var uid = req.query.uid;
+    var kefuId = req.query.kefuId;
 
-    if(!uid){
+    if(!uid || !kefuId){
         return res.send({code:500,msg:"参数不全"});
     }
 
-    msgModel.query(page,size,uid,function (err,data) {
+    msgModel.query(page,size,uid,kefuId,function (err,data) {
         if(err){
             console.error(err);
             return res.send({code:400,msg:"系统错误"});

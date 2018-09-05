@@ -5,7 +5,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
         , $ = layui.jquery;
 
     var currentUUID = '';
-    var uuid = '';
+    var uuid = '', kefuId = '';
     var socket = io.connect('http://'+document.domain+':9010',{
         "transports":['websocket', 'polling']
     });
@@ -44,10 +44,10 @@ layui.use(['layer', 'form', 'jquery'], function () {
        div.scrollTop = div.scrollHeight;
     }
 
-    function insert_section(uid) {
+    function insert_section(uid, kefuId) {
         var html = '<section class="user-section"  style="display:none;" id="section-'+ uid +'"></section>';
         $(".message-container").append(html);
-        get_message(uid);
+        get_message(uid, kefuId);
     }
 
     function insert_agent_html(msg){
@@ -159,6 +159,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
                 "type":'private',
                 "uid":currentUUID,
                 "content":msg,
+                "kefuId": kefuId,
                 "from_uid":uuid,
                 "chat_type":'text'
             };
@@ -170,8 +171,8 @@ layui.use(['layer', 'form', 'jquery'], function () {
     }
 
     //获取在线用户
-    function get_users() {
-        $.get('/users',function (data) {
+    function get_users(kefuIdkefuId) {
+        $.get(`/users?kefuId=${kefuId}`,function (data) {
             if(data.code == 200){
                 $('.chat-user').html('');
 
@@ -180,7 +181,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
                 data.forEach(function (user) {
                     insert_user_html(user.uid,user.name + '#'+ (uuids.length + 1));
                     //创建聊天section
-                    insert_section(user.uid);
+                    insert_section(user.uid, kefuId);
                     uuids.push(user.uid);
                 });
                 if(data.length > 0 && !currentUUID){
@@ -198,8 +199,8 @@ layui.use(['layer', 'form', 'jquery'], function () {
     }
 
     //获取最新的五条数据
-    function get_message(uid) {
-        $.get('/message?uid='+uid,function (data) {
+    function get_message(uid, kefuId) {
+        $.get(`/message?uid=${uid}&kefuId=${kefuId}`,function (data) {
             if(data.code == 200){
                 data.data.reverse().forEach(function (msg) {
                     if(msg.from_uid == uid){
@@ -296,15 +297,36 @@ layui.use(['layer', 'form', 'jquery'], function () {
         $(".emoji-list").toggle();
     });
 
+      /**
+     * 获取 url 中 query 参数的值
+     * @param {String} name 参数的名字
+     * @param {String} search url 中的 search，或指定的 类似 ?val=1&id=11 的字符串（已扩充了正则表达式的范围，可以直接传整串url也可以）
+     */
+    function getQueryString (name, search = window.location.href) {
+        let reg = new RegExp('(^|&|\\?)' + name + '=([^&]*)(&|$)');
+
+        let r = search.substr(1).match(reg);
+
+        if (r !== null) {
+            return unescape(r[2]);
+        } else {
+            return null;
+        }
+    };
+
     //连接服务器
     socket.on('connect', function () {
         console.log('连接成功...');
         uuid = 'chat-kefu-admin';
         var ip = $("#keleyivisitorip").html();
         console.log('server ip: '+ip)
+
+        kefuId = getQueryString('kefuId');
+
         var msg = {
             "uid" : uuid,
-            "ip" : ip
+            "ip" : ip,
+            "kefuId": kefuId,
         };
         socket.emit('login', msg);
     });
@@ -338,12 +360,12 @@ layui.use(['layer', 'form', 'jquery'], function () {
                 uuids.push(msg.uid);
                 insert_user_html(msg.uid,msg.name + '#'+ (uuids.length + 1));
                 //创建聊天section
-                insert_section(msg.uid);
+                insert_section(msg.uid, msg.kefuId);
             }else{
                 if($(".chat-user").find("#"+msg.uid).length == 0){
                     insert_user_html(msg.uid,msg.name + '#'+ (uuids.length + 1));
                     //创建聊天section
-                    insert_section(msg.uid);
+                    insert_section(msg.uid, msg.kefuId);
                 }
             }
 
@@ -371,5 +393,5 @@ layui.use(['layer', 'form', 'jquery'], function () {
     });
 
     init();
-    get_users();
+    get_users(kefuId);
 });

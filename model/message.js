@@ -13,10 +13,11 @@ var MessageSchema = new Schema({
 
 var MessageModel = mongoose.model("message", MessageSchema);
 
-function add(from_uid,to_uid,content,chat_type,image,callback) {
+function add(from_uid,to_uid,kefuId,content,chat_type,image,callback) {
     var info = {
         "from_uid" : from_uid,
         "to_uid" : to_uid,
+        "kefuId" : kefuId,
         "content" : content,
         "chat_type" : chat_type,
         "image" : image,
@@ -27,12 +28,13 @@ function add(from_uid,to_uid,content,chat_type,image,callback) {
     });
 }
 
-function query(page,size,uid,callback) {
+function query(page,size,uid,kefuId,callback) {
     var query = MessageModel.find({});
     var condition = [];
     if(uid){
         condition.push({"from_uid":uid});
         condition.push({"to_uid":uid});
+        condition.push({"kefuId":kefuId});
     }
 
     var skip = (page - 1) * size;
