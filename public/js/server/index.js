@@ -315,11 +315,11 @@ layui.use(['layer', 'form', 'jquery'], function () {
     };
 
     kefuId = getQueryString('kefuId');
+    uuid = 'chat-kefu-admin-' + getQueryString('kefuId')//'chat-kefu-admin';
 
     //连接服务器
     socket.on('connect', function () {
         console.log('连接成功...');
-        uuid = 'chat-kefu-admin';
         var ip = $("#keleyivisitorip").html();
         console.log('server ip: '+ip)
 

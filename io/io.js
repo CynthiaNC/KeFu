@@ -35,22 +35,26 @@ function ioServer(io) {
     io.on('connection', function (socket) {
         console.log('SocketIO有新的连接!');
 
-        _self.updateOnlieCount(true);
-
         //用户与Socket进行绑定
         socket.on('login', function (msg) {
             var uid = msg.uid;
             var kefuId = msg.kefuId;
             console.log(uid+'登录成功, 连接客服'+kefuId);
+            let servicerId = AppConfig.KEFUUUID + '-' + kefuId;
+
+            _self.updateOnlieCount(true, servicerId);
 
             //通知用户上线
-            if(uid != AppConfig.KEFUUUID){
-                redis.get(AppConfig.KEFUUUID,function (err,sid) {
+            // KEFUUUID 客服 id 
+            if(uid.indexOf(AppConfig.KEFUUUID) == -1){                
+                redis.get(servicerId ,function (err,sid) {
                     if(err){
                         console.error(err);
                     }
+                    console.log('redis 获取' + servicerId + ' value：' + sid)
+                    
                     if(sid){
-                        redis.get('online_count',function (err,val) {
+                        redis.get('online_count_' + servicerId,function (err,val) {
                             if(err){
                                 console.error(err);
                             }
@@ -74,7 +78,7 @@ function ioServer(io) {
                                     "type":'online'
                                 };
 
-                                redis.get('user-uuids',function (err,uuids) {
+                                redis.get('user-uuids_' + servicerId,function (err,uuids) {
                                     if(err){
                                         console.error(err);
                                     }
@@ -89,7 +93,7 @@ function ioServer(io) {
                                         var d_user = {"uid":uid, "kefuId": kefuId,"name":location + ' 客户'};
                                         uuids.push(d_user);
                                         uuids = JSON.stringify(uuids);
-                                        redis.set('user-uuids',uuids,null,function (err,ret) {
+                                        redis.set('user-uuids_' + servicerId, uuids,null,function (err,ret) {
                                             if(err){
                                                 console.error(err);
                                             }
@@ -104,8 +108,6 @@ function ioServer(io) {
                     }
                 });
             }
-
-            // 要怎么进行连接呢？
 
             redis.set(uid,socket.id,null,function (err,ret) {
                 if(err){
@@ -123,9 +125,12 @@ function ioServer(io) {
 
         //断开事件
         socket.on('disconnect', function() {
-            _self.updateOnlieCount(false);
-
+            
             redis.get(socket.id,function (err,val) {
+                
+                let servicerId = val;
+                _self.updateOnlieCount(false, servicerId);
+                
                 console.log(val + "与服务器断开");
                 if(err){
                     console.error(err);
@@ -143,8 +148,8 @@ function ioServer(io) {
                 });
 
                 //通知用户下线
-                if(val != AppConfig.KEFUUUID){
-                    redis.get(AppConfig.KEFUUUID,function (err,sid) {
+                if(val.indexOf( AppConfig.KEFUUUID) == -1){
+                    redis.get(servicerId,function (err,sid) {
                         if(err){
                             console.error(err);
                         }
@@ -158,7 +163,7 @@ function ioServer(io) {
                         }
                     });
 
-                    redis.get('user-uuids',function (err,uuids) {
+                    redis.get('user-uuids_' + servicerId,function (err,uuids) {
                         if(err){
                             console.error(err);
                         }
@@ -179,7 +184,7 @@ function ioServer(io) {
                                 }
                             });
                             uuids = JSON.stringify(tmp);
-                            redis.set('user-uuids',uuids,null,function (err,ret) {
+                            redis.set('user-uuids_' + servicerId,uuids,null,function (err,ret) {
                                 if(err){
                                     console.error(err);
                                 }
@@ -234,9 +239,12 @@ function ioServer(io) {
         });
     });
 
-    this.updateOnlieCount = function (isConnect) {
+    this.updateOnlieCount = function (isConnect, servicerId) {
+
+        console.log('isConnect: ' + isConnect);
+
         //记录在线客户连接数
-        redis.get('online_count',function (err,val) {
+        redis.get('online_count_' + servicerId,function (err,val) {
             if(err){
                 console.error(err);
             }
@@ -258,7 +266,7 @@ function ioServer(io) {
             console.log('当前在线人数：'+val);
             io.sockets.emit('update_online_count', { online_count: val });
 
-            redis.set('online_count',val,null,function (err,ret) {
+            redis.set('online_count_' + servicerId,val,null,function (err,ret) {
                 if(err){
                     console.error(err);
                 }

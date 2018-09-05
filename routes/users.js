@@ -4,7 +4,8 @@ var redis = require('../utils/redis');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-    redis.get('user-uuids',function (err,uuids) {
+    let servicerId = 'chat-kefu-admin-' + req.query.kefuId;
+    redis.get('user-uuids_' + servicerId,function (err,uuids) {
         if(err){
             console.error(err);
             return res.send({code:400,msg:'获取失败'});

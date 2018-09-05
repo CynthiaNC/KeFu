@@ -98,7 +98,7 @@ $(function(){
         if(msg){
             var msg_sender = {
                 "type":'private',
-                "uid":'chat-kefu-admin',
+                "uid":'chat-kefu-admin-'+kefuId,
                 "content":msg,
                 "from_uid":uuid,
                 "chat_type":'text'
@@ -154,7 +154,7 @@ $(function(){
 
                     var msg_sender = {
                         "type":'private',
-                        "uid":'chat-kefu-admin',
+                        "uid":'chat-kefu-admin-'+kefuId,
                         "content":'图片消息',
                         "from_uid":uuid,
                         "chat_type":'image',
