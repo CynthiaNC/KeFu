@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var MessageSchema = new Schema({
     from_uid : { type:String ,index: true},
     to_uid : { type:String ,index: true},
+    kefu_id : { type:String ,index: true},
     content : { type:String },
     chat_type : { type:String,default:'text'},
     image : { type:String,default:''},
@@ -13,11 +14,11 @@ var MessageSchema = new Schema({
 
 var MessageModel = mongoose.model("message", MessageSchema);
 
-function add(from_uid,to_uid,kefuId,content,chat_type,image,callback) {
+function add(from_uid,to_uid,kefu_id,content,chat_type,image,callback) {
     var info = {
         "from_uid" : from_uid,
         "to_uid" : to_uid,
-        "kefuId" : kefuId,
+        "kefu_id" : kefu_id,
         "content" : content,
         "chat_type" : chat_type,
         "image" : image,

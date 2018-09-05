@@ -206,6 +206,7 @@ function ioServer(io) {
                 var mg = {
                     "uid" : msg.from_uid  ,
                     "content": msg.content,
+                    "kefuId": msg.kefuId,
                     "chat_type" :  msg.chat_type?msg.chat_type:'text',
                     "image":msg.image
                 };
@@ -221,6 +222,7 @@ function ioServer(io) {
                        var mg = {
                          "uid" : msg.from_uid,
                          "content": msg.content,
+                         "kefuId": msg.kefuId,
                          "chat_type" :  msg.chat_type?msg.chat_type:'text',
                          "image":msg.image
                        };

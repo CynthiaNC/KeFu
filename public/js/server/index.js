@@ -171,7 +171,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
     }
 
     //获取在线用户
-    function get_users(kefuIdkefuId) {
+    function get_users(kefuId) {
         $.get(`/users?kefuId=${kefuId}`,function (data) {
             if(data.code == 200){
                 $('.chat-user').html('');
@@ -314,14 +314,14 @@ layui.use(['layer', 'form', 'jquery'], function () {
         }
     };
 
+    kefuId = getQueryString('kefuId');
+
     //连接服务器
     socket.on('connect', function () {
         console.log('连接成功...');
         uuid = 'chat-kefu-admin';
         var ip = $("#keleyivisitorip").html();
         console.log('server ip: '+ip)
-
-        kefuId = getQueryString('kefuId');
 
         var msg = {
             "uid" : uuid,
