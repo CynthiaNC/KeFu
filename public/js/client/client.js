@@ -99,6 +99,7 @@ $(function(){
             var msg_sender = {
                 "type":'private',
                 "uid":'chat-kefu-admin-'+kefuId,
+                "kefuId": kefuId,
                 "content":msg,
                 "from_uid":uuid,
                 "chat_type":'text'
@@ -154,6 +155,7 @@ $(function(){
 
                     var msg_sender = {
                         "type":'private',
+                        "kefuId": kefuId,
                         "uid":'chat-kefu-admin-'+kefuId,
                         "content":'图片消息',
                         "from_uid":uuid,

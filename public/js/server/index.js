@@ -268,6 +268,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
                         "uid":currentUUID,
                         "content":'图片消息',
                         "from_uid":uuid,
+                        "kefuId": kefuId,
                         "chat_type":'image',
                         "image":sourceLink
                     };
