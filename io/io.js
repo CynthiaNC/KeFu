@@ -19,11 +19,11 @@ function ioServer(io) {
     var __uuids = [];
 
     //初始化连接人数
-    redis.set('online_count',0,null,function (err,ret) {
-        if(err){
-            console.error(err);
-        }
-    });
+    // redis.set('online_count',0,null,function (err,ret) {
+    //     if(err){
+    //         console.error(err);
+    //     }
+    // });
 
     Array.prototype.remove = function(val) {
         var index = this.indexOf(val);
@@ -42,6 +42,8 @@ function ioServer(io) {
             console.log(uid+'登录成功, 连接客服'+kefuId);
             let servicerId = AppConfig.KEFUUUID + '-' + kefuId;
 
+            let socketSignature = msg.socketSignature;
+
             if (uid.indexOf(AppConfig.KEFUUUID) !== -1) {
                 //初始化连接人数
                 console.log(uid+': 初始化连接人数');
@@ -50,19 +52,38 @@ function ioServer(io) {
                         console.error(err);
                     }
                 });
+
+                redis.get('user-uuids_' + servicerId,function (err,uuids) {
+                    if(err){
+                        console.error(err);
+                    }
+                    if(uuids){
+                        uuids =JSON.parse(uuids);
+                    }else{
+                        uuids = [];
+                    
+                    }
+                    console.log('------- test for uuids ------')
+                    console.log(uuids)
+                    uuids.map (item => {
+                        if(__uuids.indexOf(item.uid) == -1){
+                            __uuids.push(item.uid);
+                        }
+                    })
+                    console.log(__uuids)
+                });
+
             }
-
-
+            
             _self.updateOnlieCount(true, servicerId);
 
+
             //通知用户上线
-            // KEFUUUID 客服 id 
-            if(uid.indexOf(AppConfig.KEFUUUID) == -1){
+            if(uid.indexOf(AppConfig.KEFUUUID) == -1){ // 客服id的标识
                 redis.get(servicerId ,function (err,sid) {
                     if(err){
                         console.error(err);
                     }
-                    console.log('redis 获取' + servicerId + ' value：' + sid)
                     
                     if(sid){
                         redis.get('online_count_' + servicerId,function (err,val) {
@@ -139,6 +160,8 @@ function ioServer(io) {
             
             redis.get(socket.id,function (err,val) {
                 
+                // let tmpArr = val.split('----');
+                // let servicerId = tmpArr[0];
                 let servicerId = val;
                 _self.updateOnlieCount(false, servicerId);
                 
@@ -251,9 +274,6 @@ function ioServer(io) {
     });
 
     this.updateOnlieCount = function (isConnect, servicerId) {
-
-        console.log('isConnect: ' + isConnect);
-
         //记录在线客户连接数
         redis.get('online_count_' + servicerId,function (err,val) {
             if(err){
@@ -274,7 +294,7 @@ function ioServer(io) {
                 }
             }
 
-            console.log('当前在线人数：'+val);
+            console.log('当前在线人数：'+val); // TODO: 有问题，只能显示当前客服的连接数量
             io.sockets.emit('update_online_count', { online_count: val });
 
             redis.set('online_count_' + servicerId,val,null,function (err,ret) {

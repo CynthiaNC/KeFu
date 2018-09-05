@@ -9,14 +9,11 @@ router.get('/', function(req, res, next) {
 
 router.get('/admin', function(req, res, next) {
     console.log('------- 客服登录 -------')
-    console.log('kefuId:' +req.query.kefuId)
     res.render('./server/index');
 });
 
 router.get('/client', function(req, res, next) {
     console.log('------- 用户登录 -------')
-    console.log('kefuId:' +req.query.kefuId)
-    console.log('openId:' +req.query.openId)
     res.render('./client/index');
 });
 

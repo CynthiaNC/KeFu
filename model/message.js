@@ -30,7 +30,6 @@ function add(from_uid,to_uid,kefu_id,content,chat_type,image,callback) {
 }
 
 function query(page,size,uid,kefuId,callback) {
-    console.log('--- query kefuId: ' + kefuId + ' uid: ' + uid)
     var query = MessageModel.find({});
     var orCondition = [], andCondition = [];
     if(uid){

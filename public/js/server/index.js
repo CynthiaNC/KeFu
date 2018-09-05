@@ -328,6 +328,7 @@ layui.use(['layer', 'form', 'jquery'], function () {
             "uid" : uuid,
             "ip" : ip,
             "kefuId": kefuId,
+            "socketSignature": uuid + '----' + kefuId
         };
         socket.emit('login', msg);
     });

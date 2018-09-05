@@ -236,6 +236,7 @@ $(function(){
                 "uid" : uuid,
                 "ip" : ip,
                 "kefuId": kefuId,
+                "socketSignature": uuid + '----' + kefuId
             };
             socket.emit('login', msg);
             get_message(uuid, kefuId);
