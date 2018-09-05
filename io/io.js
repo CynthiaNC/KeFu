@@ -42,11 +42,22 @@ function ioServer(io) {
             console.log(uid+'登录成功, 连接客服'+kefuId);
             let servicerId = AppConfig.KEFUUUID + '-' + kefuId;
 
+            if (uid.indexOf(AppConfig.KEFUUUID) !== -1) {
+                //初始化连接人数
+                console.log(uid+': 初始化连接人数');
+                redis.set('online_count_' + servicerId,0,null,function (err,ret) {
+                    if(err){
+                        console.error(err);
+                    }
+                });
+            }
+
+
             _self.updateOnlieCount(true, servicerId);
 
             //通知用户上线
             // KEFUUUID 客服 id 
-            if(uid.indexOf(AppConfig.KEFUUUID) == -1){                
+            if(uid.indexOf(AppConfig.KEFUUUID) == -1){
                 redis.get(servicerId ,function (err,sid) {
                     if(err){
                         console.error(err);
