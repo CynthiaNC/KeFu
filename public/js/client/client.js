@@ -251,8 +251,11 @@ $(function(){
     //         content 消息
     // */
     socket.on('message', function(msg){
-        insert_agent_html(msg);
-        scrollToBottom();
+
+        if (msg.kefuId == kefuId) { // 暴力过滤，筛选非当前kefuId的消息,在客户端只能存在一个聊天窗口
+            insert_agent_html(msg);
+            scrollToBottom();
+        }
     });
 
 

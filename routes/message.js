@@ -8,11 +8,16 @@ router.get('/', function(req, res, next) {
     var uid = req.query.uid;
     var kefuId = req.query.kefuId;
 
+    console.log('--- req kefuId: ' + kefuId)
+
     if(!uid || !kefuId){
         return res.send({code:500,msg:"参数不全"});
     }
 
     msgModel.query(page,size,uid,kefuId,function (err,data) {
+
+        console.log('--- msgModel.query kefuId: ' + kefuId)
+        
         if(err){
             console.error(err);
             return res.send({code:400,msg:"系统错误"});
