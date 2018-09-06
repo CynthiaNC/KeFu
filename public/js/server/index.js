@@ -218,7 +218,11 @@ layui.use(['layer', 'form', 'jquery'], function () {
     }
 
     $(".btnMsgSend").click(function(){
-        msg_send();
+        if (kefuId) {
+            msg_send();
+        } else {
+            alert ('客服身份未验证')
+        }
     });
 
     $(".picture-upload").click(function () {
@@ -330,7 +334,10 @@ layui.use(['layer', 'form', 'jquery'], function () {
             "kefuId": kefuId,
             "socketSignature": uuid + '----' + kefuId
         };
-        socket.emit('login', msg);
+
+        if (kefuId) {
+            socket.emit('login', msg);
+        }
     });
 
     //后端推送来消息时

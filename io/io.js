@@ -54,6 +54,9 @@ function ioServer(io) {
                 });
 
                 redis.get('user-uuids_' + servicerId,function (err,uuids) {
+                    console.log('err, uuids')
+                    console.log(err)
+                    console.log(uuids)
                     if(err){
                         console.error(err);
                     }
@@ -63,14 +66,11 @@ function ioServer(io) {
                         uuids = [];
                     
                     }
-                    console.log('------- test for uuids ------')
-                    console.log(uuids)
                     uuids.map (item => {
                         if(__uuids.indexOf(item.uid) == -1){
                             __uuids.push(item.uid);
                         }
                     })
-                    console.log(__uuids)
                 });
 
             }
@@ -80,10 +80,16 @@ function ioServer(io) {
 
             //通知用户上线
             if(uid.indexOf(AppConfig.KEFUUUID) == -1){ // 客服id的标识
+
+                console.log('servicerId')
+                console.log(servicerId)
                 redis.get(servicerId ,function (err,sid) {
                     if(err){
                         console.error(err);
                     }
+
+                    console.log('sid')
+                    console.log(sid)
                     
                     if(sid){
                         redis.get('online_count_' + servicerId,function (err,val) {
@@ -126,6 +132,8 @@ function ioServer(io) {
                                         uuids.push(d_user);
                                         uuids = JSON.stringify(uuids);
                                         redis.set('user-uuids_' + servicerId, uuids,null,function (err,ret) {
+
+                                            console.log('set user-uuids_')
                                             if(err){
                                                 console.error(err);
                                             }
@@ -182,49 +190,51 @@ function ioServer(io) {
                 });
 
                 //通知用户下线
-                if(val.indexOf( AppConfig.KEFUUUID) == -1){
-                    redis.get(servicerId,function (err,sid) {
-                        if(err){
-                            console.error(err);
-                        }
-                        if(sid){
-                            var info = {
-                                "uid":val,
-                                "name":'客户下线',
-                                "type":'offline'
-                            };
-                            io.to(sid).emit('update-users',info);
-                        }
-                    });
-
-                    redis.get('user-uuids_' + servicerId,function (err,uuids) {
-                        if(err){
-                            console.error(err);
-                        }
-                        if(uuids){
-                            uuids =JSON.parse(uuids);
-                        }else{
-                            uuids = [];
-                        }
-                        val = parseInt(val);
-                        var idx = __uuids.indexOf(val);
-                        if( idx != -1){
-                            __uuids.remove(val);
-                            //uuids.splice(idx,1);
-                            var tmp = [];
-                            uuids.forEach(function (user) {
-                                if(user.uid != val){
-                                    tmp.push(user);
-                                }
-                            });
-                            uuids = JSON.stringify(tmp);
-                            redis.set('user-uuids_' + servicerId,uuids,null,function (err,ret) {
-                                if(err){
-                                    console.error(err);
-                                }
-                            });
-                        }
-                    });
+                if (val) {
+                    if(val.indexOf( AppConfig.KEFUUUID) == -1){
+                        redis.get(servicerId,function (err,sid) {
+                            if(err){
+                                console.error(err);
+                            }
+                            if(sid){
+                                var info = {
+                                    "uid":val,
+                                    "name":'客户下线',
+                                    "type":'offline'
+                                };
+                                io.to(sid).emit('update-users',info);
+                            }
+                        });
+    
+                        redis.get('user-uuids_' + servicerId,function (err,uuids) {
+                            if(err){
+                                console.error(err);
+                            }
+                            if(uuids){
+                                uuids =JSON.parse(uuids);
+                            }else{
+                                uuids = [];
+                            }
+                            val = parseInt(val);
+                            var idx = __uuids.indexOf(val);
+                            if( idx != -1){
+                                __uuids.remove(val);
+                                //uuids.splice(idx,1);
+                                var tmp = [];
+                                uuids.forEach(function (user) {
+                                    if(user.uid != val){
+                                        tmp.push(user);
+                                    }
+                                });
+                                uuids = JSON.stringify(tmp);
+                                redis.set('user-uuids_' + servicerId,uuids,null,function (err,ret) {
+                                    if(err){
+                                        console.error(err);
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
             });
         });

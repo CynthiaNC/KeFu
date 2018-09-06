@@ -1,4 +1,4 @@
-var mongoose = require('../mongoose').mongoose;
+var mongoose = require('../utils/mongoose').mongoose;
 var crypto = require('crypto');
 
 var Schema = mongoose.Schema;
@@ -6,10 +6,33 @@ var Schema = mongoose.Schema;
 var UsersSchema = new Schema({
     username : { type:String },
     password : { type:String },
+    kefu_id : { type:String },
     time : { type:Date, default:Date.now }
 });
 
 var UsersModel = mongoose.model("users", UsersSchema);
+
+function add(username, password, kefuId, callback) {
+    var info = {
+        "username" : username,
+        "password" : password,
+        "kefu_id": kefuId,
+    };
+    var usersModel = new UsersModel(info);
+    usersModel.save(function(err, res){
+        return callback(err,res);
+    });
+}
+
+function query(page,size,kefuId,callback) {
+    var query = UsersModel.find({});
+    var orCondition = [], andCondition = [];
+
+    andCondition.push({"kefu_id":kefuId});
+
+    var skip = (page - 1) * size;
+    query.and(andCondition).or(orCondition).skip(skip).limit(size).sort({"time":-1}).exec(callback);
+}
 
 function login(username,password,callback) {
     var md5 = crypto.createHash('md5');

@@ -1,9 +1,26 @@
 var redisSvc = {};
 var redis = require("redis");
 
+const DB_NUMBER = 7;
+
 if(!client){
     var client = redis.createClient();
 }
+
+/**
+ * 作者：袁俊亮技术博客
+    链接：https://www.jianshu.com/p/8f01fa5fe288
+    來源：简书
+    简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
+ */
+client.once("connect", function() {
+    // 假设我们需要选择 redis 的 db，因为实际上我们不会去污染默认的 db 0
+    client.select(DB_NUMBER, function(err) {
+        if(err) process.exit(4);
+    });
+});
+
+
 
 client.on("error", function (err) {
     console.log("Redis Error :" , err);
